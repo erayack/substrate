@@ -151,6 +151,9 @@ func ParseTarget(target resolver.Target) (ns, svc, port string, err error) {
 	if ns == "" || svc == "" {
 		return "", "", "", fmt.Errorf("invalid target %q, expected namespace and service to be non-empty", target.String())
 	}
+	if strings.Contains(svc, ".") {
+		return "", "", "", fmt.Errorf("invalid service name %q in target %q: service names cannot contain dots", svc, target.String())
+	}
 	return ns, svc, port, nil
 }
 

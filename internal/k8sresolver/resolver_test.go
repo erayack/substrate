@@ -102,21 +102,40 @@ func TestParseTarget(t *testing.T) {
 			wantPort:      "443",
 		},
 		{
-			name: "explicit path namespace preserves dotted service",
+			name: "explicit path namespace rejects dotted service",
 			target: resolver.Target{
 				URL: url.URL{Scheme: "k8s", Path: "/ate-system/api.prod"},
 			},
-			wantNamespace: "ate-system",
-			wantService:   "api.prod",
-			wantPort:      "443",
+			wantErr: true,
 		},
 		{
-			name: "explicit host namespace preserves dotted service",
+			name: "explicit path namespace rejects dotted service with port",
+			target: resolver.Target{
+				URL: url.URL{Scheme: "k8s", Path: "/ate-system/api.prod:8443"},
+			},
+			wantErr: true,
+		},
+		{
+			name: "explicit host namespace rejects dotted service",
+			target: resolver.Target{
+				URL: url.URL{Scheme: "k8s", Host: "ate-system", Path: "/api.prod"},
+			},
+			wantErr: true,
+		},
+		{
+			name: "explicit host namespace rejects dotted service with port",
 			target: resolver.Target{
 				URL: url.URL{Scheme: "k8s", Host: "ate-system", Path: "/api.prod:8443"},
 			},
+			wantErr: true,
+		},
+		{
+			name: "explicit namespace accepts hyphenated service",
+			target: resolver.Target{
+				URL: url.URL{Scheme: "k8s", Path: "/ate-system/api-prod:8443"},
+			},
 			wantNamespace: "ate-system",
-			wantService:   "api.prod",
+			wantService:   "api-prod",
 			wantPort:      "8443",
 		},
 		{
